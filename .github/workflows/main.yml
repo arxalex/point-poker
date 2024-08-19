@@ -18,4 +18,4 @@ jobs:
           local_dir: "./"
           remote_dir: "./point-poker"
           delete: "false"
-          exclude: ".github/ .idea/ .git/ Readme.md .gitignore"
+          exclude: ".github/ .idea/ .git/ Readme.md .gitignore config.json"
