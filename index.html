@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Point poker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
+    <link href="style.css" rel="stylesheet" type="text/css">
+    <link rel="icon" href="https://apps.arxalex.com/favicon.png" type="image/x-icon">
+</head>
+
+<body>
+    <div id='page-wrapper' class="container-fluid px-0">
+        <div class="navbar navbar-expand-sm navbar-light bg-light">
+            <div class="container-fluid">
+
+                <div class="mx-auto text-center d-block">
+                    <a class="navbar-brand col-12 me-0" href="./">
+                        <span class="small"> Point poker</span>
+                    </a>
+                    <span class="d-inline small">by</span>
+                    <a href="../">
+                        <img class="d-inline" height="25px" src="../arxlogo.svg">
+                    </a>
+                </div>
+
+            </div>
+        </div>
+        <div class="content container pt-2">
+            <div v-if="!login && !registration"
+                class="row text-center px-2 d-flex flex-md-row align-items-center h-100vh-h">
+                <div class="col-md-6 px-5 col-sm-12 justify-content-center">
+                    <h3>Join vote</h3>
+                    <div class="input-group px-5">
+                        <input type="text" class="form-control" aria-describedby="button-teamId"
+                            placeholder="Please, input vote key" v-model="sessionData.teamid">
+                        <button class="btn btn-primary" type="button" id="button-teamId"
+                            @click="get(sessionData.teamid)">Go</button>
+                    </div>
+                </div>
+                <hr class="d-md-none w-100">
+                <div class="vl-1 bg-secondary opacity-50 h-75 d-none d-md-block"></div>
+                <div class="col-md-6 px-5 col-sm-12 justify-content-center">
+                    <button class="btn btn-primary" @click="create()">Create new vote</button>
+                </div>
+            </div>
+            <div class="row px-4" v-if="login && !registration">
+                <div class="col-sm-12 col-md-6" v-if="ishost">
+                    <div class="row">
+                        <h1 class="text-center mb-4">Here is your team!</h1>
+                        <div class="d-flex flex-row align-items-center mb-4">
+                            <div class="pe-3">
+                                <p>You can invite member via team id <b>"{{ sessionData.teamid }}"</b>, QR-code or <a
+                                        class="link-primary" onclick="copytoclipboard(event)">copy link</a> to share.
+                                </p>
+                                <p>You are host of this team. Wait for all members and click show.</p>
+                                <button v-if="!sessionData.data.displayed" class="btn btn-secondary" @click="show"
+                                    :disabled="disableShowing">Show</button>
+                                <button v-if="sessionData.data.displayed" class="btn btn-danger"
+                                    @click="hide">Hide</button>
+                            </div>
+                            <img :src="qrsrc" alt="" width="30%" />
+                        </div>
+
+                    </div>
+                </div>
+                <hr class="mb-2 d-md-none">
+                <div class="col-sm-12 col-md-6">
+                    <div class="row">
+                        <h1>List of members:</h1>
+                        <button v-if="member.memberid != '' && !sessionData.data.displayed" class="mb-2 btn btn-warning"
+                            @click="registration = !registration">Edit personal information</button>
+                        <button v-if="memberinlink !== false && !sessionData.data.displayed" class="mb-2 btn btn-danger"
+                            @click="deleteLink(links[memberinlink].linkid);">Quit from this vote</button>
+                        <button v-if="memberinlink === false && !sessionData.data.displayed" class="mb-2 btn btn-primary"
+                            @click="join(member.memberid)">Join</button>
+                        <h3 v-if="memberinlink !== false && !sessionData.data.displayed">Set your score: </h3>
+                        <div v-if="memberinlink !== false && !sessionData.data.displayed" class="btn-group p-0 m-0"
+                            role="group">
+                            <button type="button" class="btn btn-outline-secondary px-2" :class="{active: rate == -1}"
+                                @click="rate = -1">?</button>
+                            <button type="button" class="btn btn-outline-secondary px-2" :class="{active: rate == 0}"
+                                @click="rate = 0">0</button>
+                            <button type="button" class="btn btn-outline-secondary px-2" :class="{active: rate == 1}"
+                                @click="rate = 1">1</button>
+                            <button type="button" class="btn btn-outline-secondary px-2" :class="{active: rate == 2}"
+                                @click="rate = 2">2</button>
+                            <button type="button" class="btn btn-outline-secondary px-2" :class="{active: rate == 3}"
+                                @click="rate = 3">3</button>
+                            <button type="button" class="btn btn-outline-secondary px-2" :class="{active: rate == 5}"
+                                @click="rate = 5">5</button>
+                            <button type="button" class="btn btn-outline-secondary px-2" :class="{active: rate == 8}"
+                                @click="rate = 8">8</button>
+                            <button type="button" class="btn btn-outline-secondary px-2" :class="{active: rate == 13}"
+                                @click="rate = 13">13</button>
+                            <button type="button" class="btn btn-outline-secondary px-2" :class="{active: rate == 21}"
+                                @click="rate = 21">21</button>
+                            <input type="number" class="form-control" style="min-width: 20px; width: unset;"
+                                placeholder="custom" v-model="rate"></input>
+                        </div>
+
+                        <member v-for="member in links" :member="member"></member>
+                    </div>
+                </div>
+                <div v-if="sessionData.data.displayed" class="col-sm-12 col-md-6 bg-success bg-gradient text-white py-3 px-4 rounded">
+                    <h1 class="fw-bold">Result</h1>
+                    <div class="row">
+                        <div class="col-6 col-sm-4">
+                            <p>Members</p>
+                            <p>Average</p>
+                            <p>Min</p>
+                            <p>Max</p>
+                        </div>
+                        <div class="col-6 col-sm-8">
+                            <p>{{ links.length }}</p>
+                            <p>{{ avg }}</p>
+                            <p>{{ min }}</p>
+                            <p>{{ max }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div v-if="login && registration" class="row">
+                <h1 class="mb-3">Personal information</h1>
+                <div class="input-group mb-3">
+                    <input class="form-control" type="text" placeholder="First name" v-model="member.first_name">
+                </div>
+                <div class="input-group mb-3">
+                    <input class="form-control" type="text" placeholder="Last name" v-model="member.last_name">
+                </div>
+                <div class="input-group mb-3">
+                    <input class="form-control" type="email" placeholder="E-mail" v-model="member.email">
+                </div>
+                <div class="input-group mb-3">
+                    <input class="form-control" type="tel" placeholder="Phone number" v-model="member.phone">
+                </div>
+                <div class="input-group mb-3 w-100 col-12">
+                    <button class="btn btn-primary w-100" @click="saveM">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        var userLang = navigator.language;
+    </script>
+    <script type="text/x-template" id='member-template'>
+        <div class="d-flex flex-row align-items-center">
+            <p class="mb-0 py-3 w-100">{{ member.name }}</p>
+            <button class="flex-shrink-1 btn text-danger" v-if="displayDelete()" @click="deleteMember(member.linkid)"><i class="bi bi-clipboard-minus"></i></button>
+            <span class="text-secondary">Score:</span>
+            <span v-if="show()" class="p-2 fw-bold">{{ score }}</span>
+            <i v-if="!show()" class="ps-2 bi bi-eye-slash-fill"></i>
+        </div>
+    </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="main.js"></script>
+    <script>
+        function copytoclipboard(evt) {
+            evt.preventDefault();
+            navigator.clipboard.writeText(app.link).then(() => {
+                alert('copied')
+            }, () => {
+
+            });
+        }
+    </script>
+</body>
+
+</html>
