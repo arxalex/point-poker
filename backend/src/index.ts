@@ -14,8 +14,7 @@ const app = new Hono<{ Bindings: Bindings }>()
 const tables = {
   sessions: 'pp_sessions',
   members: 'pp_members',
-  links: 'pp_link',
-  random: 'pp_random'
+  links: 'pp_link'
 }
 
 app.use('/*', cors({
