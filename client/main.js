@@ -33,6 +33,7 @@ Vue.component('member', {
               
     },
 });
+const backendUrl = 'https://point-poker-api.arxalex.com/';
 var app = new Vue({
     el: '#page-wrapper',
     data: {
@@ -60,14 +61,12 @@ var app = new Vue({
     },
     methods: {
         getSession: function (id, pass) {
-            return axios.post('get.php', {
-                table: 'pp_sessions',
-                query: {
-                    id: id,
-                    pass: pass
+            return axios.get(backendUrl + 'session', {
+                params: {
+                    'idpass': id + pass
                 }
             }).then((response) => {
-                if (response.data.length > 0) {
+                if (response.data) {
                     return response.data;
                 } else {
                     return false;
@@ -75,14 +74,12 @@ var app = new Vue({
             });
         },
         getMember: function (id, pass) {
-            return axios.post('get.php', {
-                table: 'pp_members',
-                query: {
-                    id: id,
-                    pass: pass
+            return axios.get(backendUrl + 'member', {
+                params: {
+                    'idpass': id + pass
                 }
             }).then((response) => {
-                if (response.data.length > 0) {
+                if (response.data) {
                     return response.data;
                 } else {
                     return false;
@@ -90,14 +87,12 @@ var app = new Vue({
             });
         },
         getLinks: function () {
-            return axios.post('get.php', {
-                table: 'pp_link',
-                query: {
-                    id: this.sessionData.id,
-                    pass: this.sessionData.pass
+            return axios.get(backendUrl + 'links', {
+                params: {
+                    'idpass': this.sessionData.id + this.sessionData.pass
                 }
             }).then((response) => {
-                if (response.data.length > 0) {
+                if (response.data) {
                     return response.data;
                 } else {
                     return false;
@@ -105,55 +100,40 @@ var app = new Vue({
             });
         },
         createSession: function () {
-            return axios.post('create.php', {
-                table: 'pp_sessions',
-                query: {
-                    'id': 'DEFAULT',
-                    'pass': generateRandomString(6),
-                    'data': JSON.stringify(this.sessionData.data),
-                },
+            return axios.post(backendUrl + 'session', {
+                pass: generateRandomString(6),
+                data: JSON.stringify(this.sessionData.data),
             }).then((response) => {
                 return response.data;
             });
         },
         createMember: function () {
-            return axios.post('create.php', {
-                table: 'pp_members',
-                query: {
-                    'id': 'DEFAULT',
-                    'pass': generateRandomString(6),
-                    'email': this.member.email,
-                    'phone': this.member.phone,
-                    'first_name': this.member.first_name,
-                    'last_name': this.member.last_name,
-                },
+            return axios.post(backendUrl + 'member', {
+                pass: generateRandomString(6),
+                email: this.member.email,
+                phone: this.member.phone,
+                first_name: this.member.first_name,
+                last_name: this.member.last_name,
             }).then((response) => {
                 return response.data;
             });
         },
         createLink: function () {
-            return axios.post('create.php', {
-                table: 'pp_link',
-                query: {
-                    'id': this.sessionData.id,
-                    'pass': this.sessionData.pass,
-                    'memberid': this.member.id,
-                    'linkid': 'DEFAULT',
-                    'name': this.member.first_name,
-                    'rate': this.rate
-                },
+            return axios.post(backendUrl + 'link', {
+                id: this.sessionData.id,
+                pass: this.sessionData.pass,
+                memberid: this.member.id,
+                name: this.member.first_name,
+                rate: this.rate
             }).then((response) => {
                 return response.data;
             });
         },
         saveSession() {
-            axios.post('update.php', {
-                table: 'pp_sessions',
-                query: {
-                    'id': this.sessionData.id,
-                    'pass': this.sessionData.pass,
-                    'data': JSON.stringify(this.sessionData.data)
-                },
+            axios.post(backendUrl + 'session/update', {
+                id: this.sessionData.id,
+                pass: this.sessionData.pass,
+                data: JSON.stringify(this.sessionData.data)
             }).then((response) => {
                 if (response.data.response) {
                     this.saveSessionlocal();
@@ -161,16 +141,13 @@ var app = new Vue({
             });
         },
         saveMember() {
-            axios.post('update.php', {
-                table: 'pp_members',
-                query: {
-                    'id': this.member.id,
-                    'pass': this.member.pass,
-                    'email': this.member.email,
-                    'phone': this.member.phone,
-                    'first_name': this.member.first_name,
-                    'last_name': this.member.last_name,
-                },
+            axios.post(backendUrl + 'member/update', {
+                id: this.member.id,
+                pass: this.member.pass,
+                email: this.member.email,
+                phone: this.member.phone,
+                first_name: this.member.first_name,
+                last_name: this.member.last_name,
             }).then((response) => {
                 if (response.data.response) {
                     if (this.memberinlink !== false) {
@@ -183,15 +160,12 @@ var app = new Vue({
             });
         },
         saveMyLink() {
-            axios.post('update.php', {
-                table: 'pp_link',
-                query: {
-                    'id': this.sessionData.id,
-                    'pass': this.sessionData.pass,
-                    'memberid': this.member.id,
-                    'name': this.member.first_name,
-                    'rate': this.rate,
-                },
+            axios.post(backendUrl + 'link/update', {
+                id: this.sessionData.id,
+                pass: this.sessionData.pass,
+                memberid: this.member.id,
+                name: this.member.first_name,
+                rate: this.rate,
             }).then((response) => {
                 if (response.data.response) {
                     this.get(this.sessionData.teamid);
@@ -211,13 +185,10 @@ var app = new Vue({
             localStorage.setItem('pp_member', parsed);
         },
         deleteLink(linkid) {
-            return axios.post('delete.php', {
-                table: 'pp_link',
-                query: {
-                    id: this.sessionData.id,
-                    pass: this.sessionData.pass,
-                    linkid: linkid
-                }
+            return axios.post(backendUrl + 'link/delete', {
+                id: this.sessionData.id,
+                pass: this.sessionData.pass,
+                linkid: linkid
             }).then((response) => {
                 return response.data.response;
             });
@@ -239,9 +210,9 @@ var app = new Vue({
         get: function (teamid) {
             this.getSession(teamid.slice(0, -6), teamid.slice(-6)).then((data) => {
                 if (data != false) {
-                    this.sessionData.id = data[0].id;
-                    this.sessionData.pass = data[0].pass;
-                    this.sessionData.data = JSON.parse(data[0].data);
+                    this.sessionData.id = data.id;
+                    this.sessionData.pass = data.pass;
+                    this.sessionData.data = JSON.parse(data.data);
                     this.login = true;
                     this.incorrect = false;
                     this.saveSessionlocal();
@@ -281,12 +252,12 @@ var app = new Vue({
         getM: function (memberid) {
             this.getSession(memberid.slice(0, -6), memberid.slice(-6)).then((data) => {
                 if (data != false) {
-                    this.member.id = data[0].id;
-                    this.member.pass = data[0].pass;
-                    this.member.email = data[0].email;
-                    this.member.phone = data[0].phone;
-                    this.member.first_name = data[0].first_name;
-                    this.member.last_name = data[0].last_name;
+                    this.member.id = data.id;
+                    this.member.pass = data.pass;
+                    this.member.email = data.email;
+                    this.member.phone = data.phone;
+                    this.member.first_name = data.first_name;
+                    this.member.last_name = data.last_name;
                     this.saveSessionlocal();
                 } else {
 

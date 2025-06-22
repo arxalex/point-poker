@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "point-poker-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-06-22",
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "point-poker-db",
+      "database_id": "d2544dda-8671-47ae-81c1-5173169fbc4c"
+    }
+  ]
+}
