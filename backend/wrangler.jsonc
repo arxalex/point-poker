@@ -8,7 +8,8 @@
     {
       "binding": "DB",
       "database_name": "point-poker-db",
-      "database_id": "d2544dda-8671-47ae-81c1-5173169fbc4c"
+      "database_id": "d2544dda-8671-47ae-81c1-5173169fbc4c",
+      "migrations_dir": "migrations"
     }
   ]
 }
