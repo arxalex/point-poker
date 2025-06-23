@@ -139,8 +139,8 @@ app.post('/link/update', async (c) => {
     return c.json({error: 'Query not specified'}, 404)
   }
 
-  const query = `update ${tables.members} set memberid = ?, name = ?, rate = ? where id = ? and pass = ? and linkid = ?`;
-  const result = await c.env.DB.prepare(query).bind(data.memberid, data.name ?? null, data.rate ?? null, data.id, data.pass, data.linkid).run();
+  const query = `update ${tables.members} set name = ?, rate = ? where id = ? and pass = ? and memberid = ?`;
+  const result = await c.env.DB.prepare(query).bind(data.name ?? null, data.rate ?? null, data.id, data.pass, data.memberid).run();
   return c.json({
     response: result.success
   })
