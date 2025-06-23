@@ -102,7 +102,7 @@ app.post('/link', async (c) => {
   }
 
   const query = `insert into ${tables.links} (id, pass, memberid, name, rate) values (?, ?, ?, ?, ?) RETURNING linkid`;
-  const result = await c.env.DB.prepare(query).bind(data.id, data.pass, data.memberid, data.name, data.rate ?? null).run();
+  const result = await c.env.DB.prepare(query).bind(data.id, data.pass, data.memberid, data.name ?? null, data.rate ?? null).run();
   return c.json({
     id: result.results[0].linkid,
     pass: data.pass,
@@ -140,7 +140,7 @@ app.post('/link/update', async (c) => {
   }
 
   const query = `update ${tables.members} set memberid = ?, name = ?, rate = ? where id = ? and pass = ? and linkid = ?`;
-  const result = await c.env.DB.prepare(query).bind(data.memberid, data.name, data.rate ?? null, data.id, data.pass, data.linkid).run();
+  const result = await c.env.DB.prepare(query).bind(data.memberid, data.name ?? null, data.rate ?? null, data.id, data.pass, data.linkid).run();
   return c.json({
     response: result.success
   })
