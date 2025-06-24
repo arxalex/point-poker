@@ -18,7 +18,7 @@ const tables = {
 }
 
 app.use('/*', cors({
-  origin: ['https://apps.arxalex.com', 'https://apps2.arxalex.com'],
+  origin: ['https://apps.arxalex.com'],
   allowMethods: ['GET', 'POST']
 }))
 
